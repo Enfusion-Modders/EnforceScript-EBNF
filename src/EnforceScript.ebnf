@@ -1,0 +1,19 @@
+
+script ::= (
+    <<topLevelStatement>>
+  | <<classLevelStatement>>
+  | <<classDeclaration>>
+  | <<enumDecalaration>>
+)* EOF;
+
+classDeclaration ::= 'class' <<typeDeclaration>> [('extends' | ':') <<type>>] (
+    '{' <<classLevelStatement>> '}'
+  | <<classLevelStatement>>
+); 
+
+classLevelStatement ::= ;
+
+typeDeclaration ::= <<id>>  ['<' <<typeDeclarationAtom>> (',' <<typeDeclarationAtom>>)* '>'];
+typeDeclarationAtom ::= <<type>> <<identifier>>;
+
+type ::= <<identifier>> ['<' <<type>> (',' <<type>>)* '>'];
