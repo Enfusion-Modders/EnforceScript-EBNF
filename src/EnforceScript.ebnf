@@ -1,19 +1,91 @@
+<script> ::= {
+    <topLevelDeclaration>
+  | <classLevelDeclaration>
+  | <classDeclaration>
+  | <enumDecalaration>
+} EOF;
 
-script ::= (
-    <<topLevelStatement>>
-  | <<classLevelStatement>>
-  | <<classDeclaration>>
-  | <<enumDecalaration>>
-)* EOF;
-
-classDeclaration ::= 'class' <<typeDeclaration>> [('extends' | ':') <<type>>] (
-    '{' <<classLevelStatement>> '}'
-  | <<classLevelStatement>>
+<classDeclaration> ::= 'class' <typeDeclaration> [('extends' | ':') <type>] (
+    '{' <classLevelDeclaration> '}'
+  | <classLevelDeclaration>
 ); 
 
-classLevelStatement ::= ;
+<classLevelDeclaration> ::= <variableDeclaration> | <functionDeclaration>;
 
-typeDeclaration ::= <<id>>  ['<' <<typeDeclarationAtom>> (',' <<typeDeclarationAtom>>)* '>'];
-typeDeclarationAtom ::= <<type>> <<identifier>>;
+<functionParameterList> ::= '(' <functionParameter> {',' <functionParameter>} ')';
 
-type ::= <<identifier>> ['<' <<type>> (',' <<type>>)* '>'];
+<functionParameter> ::= {<variableModifier>} variableAtom;
+
+<variableAtom> ::= <type> <identifier> ['=' <expression>];
+
+<functionDeclaration> ::=  [<attribute>] [{<functionModifier>}] <type> <identifier> <functionParameterList> <statement>; 
+
+<attribute> ::= "[" <functionCall> ']';
+
+<variableModifier> ::= "private" | "protected" | "static" | "autoptr" | "volatile" | "proto" | "ref" ["erence"] | "const" | "owned" | "out" | "notnull" | "inout" | "local";
+
+<functionModifier> ::= "private" | "external" | "protected" | "static" | "override" | "owned" | "ref" | "reference" | "proto" | "native" | "event";
+
+<expression> ::= 
+    <expressionAtom>
+  | '(' <expression> ')'
+  | <expression> '.' (<functionCall> | <identifier>)
+  | <arrayIndex>
+  | <objectCreation>
+  | <expression> ('++'|'--')
+  | ('++'|'--'|'!'|'~') <expression>
+  | <expression> (
+        "*" | "*=" | "/" | "/=" | "%" |
+        "+" | "+=" | "-" | "-=" | "<" |
+        "<=" | "<<" | "<<=" | ">" |
+        ">=" | ">>" | ">>=" | "<" |
+        "^" | "^=" | "=" | "==" |
+        "!=" | "|" | "|=" | "||" |
+        "&" | "&=" | "&&" | "&" 
+    ) <expression>;
+
+<expressionAtom> ::=
+    <boolean> 
+  | <type>
+  | 'null'
+  | 'this'
+  | 'super'
+  | <functionCall>
+  | <identifier> (* most ambigous token last *)
+;
+
+<arrayIndex> ::= <expression> '[' expression ']';
+
+<objectCreation> ::= 'new' <type> <functionCallParameterList>;
+
+<functionCall> ::= <identifier> <functionCallParameterList>;
+
+<boolean> ::= 'true' | 'false';
+
+<functionCallParameterList> ::= '(' [<functionCallParameter> {',' <functionCallParameter>}] ')';
+
+<functionCallParameter> ::= <identifier> '=';
+
+<statement> ::= (
+    '{' <statement>* '}'
+  | <variableDeclaration> 
+(*Flow Breaking Statements*)
+  | <continueStatement> 
+  | <breakStatement>  
+  | <returnStatement>
+  | <deleteStatement>
+(*catch all*)
+  | <expression>
+);
+
+<returnStatement> ::= 'return' [<identifier>];
+
+<deleteStatement> ::= 'delete' <identifier>;
+
+<breakStatement> ::= 'break';
+
+<typeDeclaration> ::= <identifier>  ['<' <typeDeclarationAtom> (',' <typeDeclarationAtom>)* '>'];
+
+<typeDeclarationAtom> ::= <type> <identifier>;
+
+<type> ::= <identifier> ['<' <type> {',' <type>} '>'] ['[' ']'];
